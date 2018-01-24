@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="text_radio_normal">#161616</color>
+    <color name="text_radio_checked">#ff2929</color>
+</resources>

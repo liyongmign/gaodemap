@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">gaode-amap</string>
+
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="cb_long_location">连续定位</string>
+    <string name="rb_poly_start_button">起点</string>
+    <string name="rb_poly_end_button">终点</string>
+</resources>
