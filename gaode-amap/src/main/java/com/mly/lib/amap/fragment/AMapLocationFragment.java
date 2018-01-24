@@ -1,6 +1,10 @@
 package com.mly.lib.amap.fragment;
 
+import android.Manifest;
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -10,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.mly.lib.amap.R;
 import com.mly.lib.amap.bean.MapConfig;
@@ -22,6 +27,32 @@ import com.mly.lib.amap.controller.impl.AMapController2DImpl;
  * 基础地图d定位{@link Fragment}
  */
 public class AMapLocationFragment extends Fragment implements MapFace {
+    private static final int MAP_REQUEST_PERMISSION = 100;
+    private static final String MAP_PERMISSION_FILE = "AMapPermission.xml";
+    private static final String MAP_PERMISSION_KEY = "permissionChecked";
+    // 权限是否已请求
+    private static Boolean permissionChecked;
+
+    // 是否已请求定位权限
+    private boolean isPermissionChecked() {
+        if (permissionChecked == null) {
+            SharedPreferences preferences = getActivity()
+                    .getSharedPreferences(MAP_PERMISSION_FILE,
+                            Context.MODE_PRIVATE);
+            permissionChecked = preferences.getBoolean(MAP_PERMISSION_KEY, false);
+        }
+        return permissionChecked;
+    }
+
+    // 保存请求的定位权限
+    private void savePermissionChecked(boolean passed) {
+        permissionChecked = passed;
+        SharedPreferences preferences = getActivity()
+                .getSharedPreferences(MAP_PERMISSION_FILE,
+                        Context.MODE_PRIVATE);
+        preferences.edit().putBoolean(MAP_PERMISSION_KEY, passed).apply();
+    }
+
     // 当前定位图标
     private Integer mLcIcon;
     // 当前单次定位
@@ -135,10 +166,24 @@ public class AMapLocationFragment extends Fragment implements MapFace {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        // 权限请求
+        checkMapPermissions();
         // 创建地图
         mMapController.onCreate(savedInstanceState);
         // 初始化创建前设置的数据
         onCheckSettingBefore();
+    }
+
+    // 权限请求
+    private void checkMapPermissions() {
+        if (isPermissionChecked()) return;
+
+        // 6.0+请求定位权限
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            requestPermissions(new String[]{
+                    Manifest.permission.ACCESS_FINE_LOCATION
+            }, MAP_REQUEST_PERMISSION);
+        }
     }
 
     // 初始化创建前设置的数据
@@ -225,6 +270,26 @@ public class AMapLocationFragment extends Fragment implements MapFace {
         if (mMapController == null) return;
         // 重新绘制加载地图
         mMapController.onResume();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == MAP_REQUEST_PERMISSION) {
+            boolean passed = true;
+            for (int result : grantResults) {
+                if (result == PackageManager.PERMISSION_DENIED) {
+                    passed = false;
+                    break;
+                }
+            }
+            if (!passed) {
+                Toast.makeText(getActivity().getApplicationContext(),
+                        "已拒绝定位权限", Toast.LENGTH_SHORT).show();
+            }
+            // 保存权限请求
+            savePermissionChecked(passed);
+        }
     }
 
 }
