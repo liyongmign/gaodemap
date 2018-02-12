@@ -57,6 +57,8 @@ public class AMapLocationFragment extends Fragment implements MapFace {
     private Integer mLcIcon;
     // 当前单次定位
     private Boolean singleLocation;
+    // 显示定位按钮
+    private Boolean showMyLcButton;
 
     /**
      * 创建地图 {@link Fragment}
@@ -197,6 +199,10 @@ public class AMapLocationFragment extends Fragment implements MapFace {
             showMyLocation(singleLocation);
             singleLocation = null;
         }
+        // 显示定位按钮
+        if (showMyLcButton != null) {
+            showMyLocationButton(showMyLcButton);
+        }
     }
 
     @Override
@@ -232,6 +238,22 @@ public class AMapLocationFragment extends Fragment implements MapFace {
         super.onLowMemory();
         // 内存不足
         mMapController.onLowMemory();
+    }
+
+    @Override
+    public void showMyLocationButton(boolean show) {
+        if (mMapController == null) {
+            showMyLcButton = show;
+            return;
+        }
+
+        if (getView() == null) return;
+        View mLcView;
+        if ((mLcView = getView().findViewById(R.id.iv_my_location_button)) == null) return;
+
+        mLcView.setVisibility(show ? View.VISIBLE : View.GONE);
+        mLcView.setEnabled(show);
+        showMyLcButton = null;
     }
 
     @Override

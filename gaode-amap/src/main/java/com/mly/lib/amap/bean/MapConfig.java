@@ -147,6 +147,8 @@ public class MapConfig {
      * 3D地图
      */
     public static final int MAP_3D = 1;
+    @MapType
+    public static final int MAP_DEFAULT = MAP_2D;
 
     @IntDef({MAP_2D, MAP_3D})
     @Retention(RetentionPolicy.SOURCE)

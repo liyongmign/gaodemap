@@ -36,6 +36,11 @@
             android:text="轨迹" />
     </LinearLayout>
 
+    <app.mly.com.gaode_map.TriangleView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@mipmap/ic_launcher" />
+
     <FrameLayout
         android:id="@+id/fl_root_container"
         android:layout_width="match_parent"

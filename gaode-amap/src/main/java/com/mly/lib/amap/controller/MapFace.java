@@ -12,6 +12,12 @@ import com.mly.lib.amap.bean.MapLatLong;
  */
 
 public interface MapFace {
+    /**
+     * 显示当前定位按钮
+     *
+     * @param show true显示
+     */
+    void showMyLocationButton(boolean show);
 
     /**
      * 设置定位图标，未设置使用默认值

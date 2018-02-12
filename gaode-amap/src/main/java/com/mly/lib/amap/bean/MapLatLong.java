@@ -11,6 +11,9 @@ import com.amap.api.location.AMapLocation;
 import com.amap.api.maps2d.CoordinateConverter;
 import com.amap.api.maps2d.model.LatLng;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * 坐标系
  */
@@ -456,6 +459,40 @@ public class MapLatLong implements Parcelable {
         bearing = aMapLocation.getBearing();
         speed = aMapLocation.getSpeed();
         time = aMapLocation.getTime();
+    }
+
+    /**
+     * 解析坐标组字符串
+     *
+     * @param polyline 如："经度1,纬度1;经度2,纬度2"
+     *                 --> "111.288137,23.493822;111.285948,23.488194"
+     * @return {@link List< MapLatLong >}
+     */
+    @Nullable
+    public static List<MapLatLong> parsePolyline(String polyline) {
+        if (!TextUtils.isEmpty(polyline)) {
+            List<MapLatLong> mapLatLongs = new ArrayList<>();
+            String[] strings = polyline.split(";");
+            for (String coord : strings) {
+                try {
+                    String[] split = coord.split(",");
+                    MapLatLong latLong = new MapLatLong(
+                            Double.valueOf(split[0]), Double.valueOf(split[1])
+                    );
+                    // 添加
+                    mapLatLongs.add(latLong);
+                } catch (NumberFormatException ignore) {
+                    error("\"" + coord + "\" 无法转换成坐标");
+                } catch (IndexOutOfBoundsException ignore) {
+                    error("坐标不合法：正确 -> 111.288137,23.493822");
+                }
+            }
+            // 解析结果
+            if (!mapLatLongs.isEmpty()) {
+                return mapLatLongs;
+            }
+        }
+        return null;
     }
 
 }

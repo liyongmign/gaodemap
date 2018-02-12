@@ -14,7 +14,6 @@ import com.amap.api.location.AMapLocationClient;
 import com.amap.api.location.AMapLocationClientOption;
 import com.amap.api.location.AMapLocationListener;
 import com.amap.api.maps2d.AMap;
-import com.amap.api.maps2d.AMapOptions;
 import com.amap.api.maps2d.CameraUpdate;
 import com.amap.api.maps2d.CameraUpdateFactory;
 import com.amap.api.maps2d.LocationSource;
@@ -42,6 +41,8 @@ public class AMapController2DImpl extends BaseAMapController implements AMapCont
     private OnLocationChangedListener m2dListener;
     private AMapLocationClient mLocationClient;
     private AMapLocationClientOption mLocationOption;
+    // 显示定位按钮
+    private boolean showMyLcButton = true;
 
     public AMapController2DImpl(@NonNull Context context) {
         super(context);
@@ -64,6 +65,14 @@ public class AMapController2DImpl extends BaseAMapController implements AMapCont
     protected void onShowMyLocation() {
         if (mLocationClient != null) {
             mLocationClient.startLocation();
+        }
+    }
+
+    @Override
+    public void showMyLocationButton(boolean show) {
+        showMyLcButton = show;
+        if (getAMap() != null) {
+            getAMap().getUiSettings().setMyLocationButtonEnabled(show);
         }
     }
 
@@ -130,7 +139,7 @@ public class AMapController2DImpl extends BaseAMapController implements AMapCont
         // 设置默认定位按钮是否显示
         uiSettings.setMyLocationButtonEnabled(false);
         // 设置为true表示显示定位层并可触发定位，false表示隐藏定位层并不可触发定位，默认是false
-        m2dAMap.setMyLocationEnabled(true);
+        m2dAMap.setMyLocationEnabled(showMyLcButton);
         // 改变logo位置(右下方)
         //uiSettings.setLogoPosition(AMapOptions.LOGO_POSITION_BOTTOM_RIGHT);
     }

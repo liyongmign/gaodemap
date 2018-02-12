@@ -6,10 +6,14 @@ import android.support.annotation.NonNull;
 import com.amap.api.maps2d.AMap;
 import com.amap.api.maps2d.CameraUpdate;
 import com.amap.api.maps2d.CameraUpdateFactory;
+import com.amap.api.maps2d.model.BitmapDescriptorFactory;
 import com.amap.api.maps2d.model.LatLng;
 import com.amap.api.maps2d.model.LatLngBounds;
+import com.amap.api.maps2d.model.Marker;
+import com.amap.api.maps2d.model.MarkerOptions;
 import com.amap.api.maps2d.model.Polygon;
 import com.amap.api.maps2d.model.PolygonOptions;
+import com.mly.lib.amap.R;
 import com.mly.lib.amap.bean.MapCamera;
 import com.mly.lib.amap.bean.MapLatLong;
 import com.mly.lib.amap.controller.MapAreaFace;
@@ -37,6 +41,8 @@ public class AMapAreaController2DImpl extends AMapController2DImpl
     private int mAreaStrokeColor = AREA_STROKE_COLOR;
     // 区域边框宽度
     private float mAreaStrokeWidth = AREA_STROKE_WIDTH;
+    // 区域中心点标记
+    private Marker mAreaMarker;
 
     public AMapAreaController2DImpl(@NonNull Context context) {
         super(context);
@@ -70,10 +76,11 @@ public class AMapAreaController2DImpl extends AMapController2DImpl
                 .addAll(areaList)
                 .fillColor(mAreaColor)
                 .strokeColor(mAreaStrokeColor)
-                .strokeWidth(mAreaStrokeWidth);
+                .strokeWidth(mAreaStrokeWidth)
+                .visible(true);
         mPolygon = aMap.addPolygon(options);
 
-          // 显示地图区域
+        // 显示地图区域
         LatLng latLng = null;
         MapLatLong c;
         if ((c = getMyLocation()) != null) {
@@ -96,6 +103,10 @@ public class AMapAreaController2DImpl extends AMapController2DImpl
         if (mPolygon != null) {
             mPolygon.remove();
             mPolygon = null;
+        }
+        if (mAreaMarker != null) {
+            mAreaMarker.remove();
+            mAreaMarker = null;
         }
     }
 
@@ -123,10 +134,36 @@ public class AMapAreaController2DImpl extends AMapController2DImpl
                     builder.include(lng);
                 }
             }
+            LatLngBounds lngBounds = builder.build();
+            addMarkerCenter(lngBounds);
             update = CameraUpdateFactory.newLatLngBounds(
-                    builder.build(), 0);
+                    lngBounds, 0);
         }
         getAMap().moveCamera(update);
+    }
+
+    // 区域中心点添加标记
+    private void addMarkerCenter(LatLngBounds lngBounds) {
+        AMap aMap;
+        if ((aMap = getAMap()) == null || lngBounds == null) return;
+
+        LatLng northeast = lngBounds.northeast;
+        LatLng southwest = lngBounds.southwest;
+        LatLng latLng = new LatLng(
+                (northeast.latitude + southwest.latitude) / 2,
+                (northeast.longitude + southwest.longitude) / 2);
+        mAreaMarker = aMap.addMarker(
+                new MarkerOptions()
+                        .position(latLng)
+                        .icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_amp_marker))
+                .visible(true)
+        );
+        aMap.setOnMarkerClickListener(new AMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                return false;
+            }
+        });
     }
 
 }
